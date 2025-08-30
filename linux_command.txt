@@ -1,0 +1,8 @@
+Navigation Command
+pwd	Print working directory [show the current location]
+ls 	normal list
+ls -l 	long list [permission,owner,size]
+ls -a	show with hidden files
+cd 	/etc or /var [chanhge directory]
+cd ..	[back one step]
+cd ~	[back home directory]
