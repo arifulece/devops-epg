@@ -6,3 +6,12 @@ ls -a	show with hidden files
 cd 	/etc or /var [chanhge directory]
 cd ..	[back one step]
 cd ~	[back home directory]
+
+File & Directory creation
+touch myfile.txt	[touch  use for create a new file]
+mkdir myfolder		[mkdire create a new directory]
+mkdir -p project/code/scripts	[nested directory]
+cat myfile.txt		[show the full file]
+less /etc/passwd	[for use scroll]
+head -n 5 /etc/passwd	[show the first 5 line]
+tail -n 5 /etc/passwd	[show the last 5 lines]
