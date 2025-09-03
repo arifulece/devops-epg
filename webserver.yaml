@@ -1,0 +1,22 @@
+---
+- name: This is Apache web server
+  hosts: appdb
+  become: yes
+  tasks:
+    - name: Install Apache Server
+      yum:
+        name: httpd
+        state: latest
+    - name: Start apache server
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+    - name: Enable httpd traffic in the firewall
+      firewalld:
+        service: httpd
+        permanent: yes
+        state: enabled
+
+...
+
