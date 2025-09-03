@@ -1,0 +1,10 @@
+---
+- name: Deploy Source Code
+  hosts: appdb
+  tasks:
+    - name: Copy Source Code
+      copy:
+        src: /var/lib/jenkins/workspace/pull-static-zayshop/
+        dest: /var/www/html/
+...
+
