@@ -1,0 +1,46 @@
+# Install MariaDB (RHEL-based)
+sudo dnf install mariadb-server -y
+
+# Start & enable service
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+
+# Secure installation
+sudo mysql_secure_installation
+
+for connection use mysql -u root -p
+--------------------------------------------
+# Install PostgreSQL
+sudo dnf install postgresql-server postgresql-contrib -y
+
+# Initialize DB
+sudo postgresql-setup --initdb
+
+# Start & enable service
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+After installation login process
+sudo -i -u postfres
+psql
+-------------------------------------------
+# Add MongoDB repo
+cat <<EOF | sudo tee /etc/yum.repos.d/mongodb-org.repo
+[mongodb-org-6.0]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/\$releasever/mongodb-org/6.0/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc
+EOF
+
+# Install MongoDB
+sudo dnf install mongodb-org -y
+
+# Start & enable
+sudo systemctl start mongod
+sudo systemctl enable mongod
+
+login process
+mongosh
+
