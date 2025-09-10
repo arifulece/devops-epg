@@ -1,0 +1,182 @@
+Database Server: MySQL/MariaDB, PostgreSQL, MongoDB
+MySQL/MariaDB
+# Install MariaDB (RHEL-based)
+sudo dnf install mariadb-server -y
+
+# Start & enable service
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+
+# Secure installation
+sudo mysql_secure_installation
+
+👉 এখন mysql -u root -p দিয়ে লগইন করতে পারবেন।
+
+PostgreSQL
+# Install PostgreSQL
+sudo dnf install postgresql-server postgresql-contrib -y
+
+# Initialize DB
+sudo postgresql-setup --initdb
+
+# Start & enable service
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+👉 ডিফল্টভাবে PostgreSQL-এ postgres নামে ইউজার তৈরি হয়। লগইন করতে:
+sudo -i -u postgres
+psql
+
+MongoBD
+# Add MongoDB repo
+cat <<EOF | sudo tee /etc/yum.repos.d/mongodb-org.repo
+[mongodb-org-6.0]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/\$releasever/mongodb-org/6.0/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc
+EOF
+
+# Install MongoDB
+sudo dnf install mongodb-org -y
+
+# Start & enable
+sudo systemctl start mongod
+sudo systemctl enable mongod
+
+👉 লগইন করতে: mongosh
+
+ SSH (Secure Shell)
+ssh username@server_ip		[ssh basic connection and working with password]
+SSH Key Authentication (Passwordless Login):
+ssh-keygen -t rsa -b 4096
+ssh-copy-id username@server_ip
+ssh username@server_ip
+
+লোকাল থেকে রিমোটে ফাইল পাঠাতে:
+scp file.txt username@server_ip:/home/username/
+
+রিমোট থেকে লোকালে ফাইল আনতে:
+scp username@server_ip:/home/username/file.txt /local/path/
+
+Web Server
+Apache Install:
+sudo yum install httpd -y
+sudo systemctl start httpd
+sudo systemctl enable httpd
+/etc/httpd/conf/httpd.conf		[Configuration File location]
+Firewall-cmd -- permanent - -add-port=80/tcp	[port allow]
+Firewall-cmd -- permanent - -add-service=http	[service allow]
+Firewall-cmd -- permanent - -add-port=443/tcp	[port allow]
+Firewall-cmd -- permanent - -add-service=https	[service allow]
+Firewall-cmd - -reload
+
+
+Nginx Install:
+sudo yum install nginx -y
+sudo systemctl start nginx
+sudo systemctl enable nginx
+/etc/nginx/nginx.conf			[configuration file location]
+
+Firewall-cmd -- permanent - -add-port=80/tcp	[port allow]
+Firewall-cmd -- permanent - -add-service=http	[service allow]
+Firewall-cmd -- permanent - -add-port=443/tcp	[port allow]
+Firewall-cmd -- permanent - -add-service=https	[service allow]
+Firewall-cmd - -reload
+
+
+DNS Server Setup:
+Install BIND
+sudo yum install bind bind-utils -y
+Main config: /etc/named.conf
+Zone files: /var/named/
+/etc/named.conf এ:
+zone "example.com" IN {
+    type master;
+    file "/var/named/example.com.zone";
+    allow-update { none; };
+};
+
+/var/named/example.com.zone
+$TTL 86400
+@   IN  SOA     ns1.example.com. root.example.com. (
+                2025090801  ; Serial
+                3600        ; Refresh
+                1800        ; Retry
+                1209600     ; Expire
+                86400 )     ; Minimum TTL
+;
+@       IN  NS      ns1.example.com.
+@       IN  A       192.168.1.100
+www     IN  A       192.168.1.100
+mail    IN  A       192.168.1.101
+@       IN  MX 10   mail.example.com.
+
+Start Service
+systemctl start named
+systemctl enable named
+
+Test DNS
+nslookup www.example.com 192.168.1.100
+
+DHCP Server Setup 
+sudo yum install dhcp -y
+/etc/dhcp/dhcpd.conf
+Example:
+default-lease-time 600;
+max-lease-time 7200;
+authoritative;
+
+subnet 192.168.10.0 netmask 255.255.255.0 {
+  range 192.168.10.100 192.168.10.200;
+  option routers 192.168.10.1;
+  option subnet-mask 255.255.255.0;
+  option domain-name-servers 8.8.8.8, 8.8.4.4;
+}
+
+Start DHCP services
+systemctl start dhcpd
+systemctl enable dhcpd
+
+Verify Service
+systemctl status dhcpd
+journalctl -xeu dhcpd
+
+Test dhcp
+sudo dhclient -r
+sudo dhclient
+
+ip addr show		[check IP address]
+
+FTP / SFTP
+
+ FTP (File Transfer Protocol) Port-21
+sudo yum install vsftpd -y
+# Start service
+sudo systemctl start vsftpd
+sudo systemctl enable vsftpd
+/etc/vsftpd/vsftpd.conf			[configuration file]
+Basic options (enable):
+anonymous_enable=NO
+local_enable=YES
+write_enable=YES
+chroot_local_user=YES
+
+sudo systemctl restart vsftpd
+Client side connect:
+ftp server_ip
+
+
+
+SFTP Setup (Recommended & Secure) Port-22
+👉 SFTP = Built-in with SSH → আলাদা সার্ভার লাগবে না।
+sudo adduser ftpuser
+sudo passwd ftpuser
+sftp ftpuser@server_ip
+File Upload/Download:
+put localfile.txt     # লোকাল থেকে সার্ভারে পাঠানো
+get remotefile.txt    # সার্ভার থেকে লোকালে আনা
+ls                    # সার্ভারে ফাইল দেখা
+
+
