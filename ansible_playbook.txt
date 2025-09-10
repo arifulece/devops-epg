@@ -1,0 +1,102 @@
+check all node ping status
+#su - automation
+#cd ansible
+#ansible all -m ping
+
+playbook [yml/yaml]
+#vim firstplay.yaml
+---
+- name: This is my first palybook
+  hosts: appnode1
+  tasks:
+    - name: Install Apache server
+      yum:
+        name: httpd
+        state: latest
+    - name: Start apache service
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+...
+
+#ansible-playbook firstplay.yaml --syntax-check
+#ansible-playbook firstplay.yaml -C
+#ansible-playbook firstplay.yaml
+#ansible-doc yum			[help playbook find out command]
+
+try to create multiple playbook
+#ansible dbnode -m shell -a 'mysql -V'
+
+Example playbook
+---
+- name: Create a Web content directly
+  hosts: dev				[for multiple hosts what i do ??]
+  tasks:
+    - name: Create webdev user
+	 user:
+	    name: webdev
+		state: present
+	- name: Install httpd and firewalld
+	  yum:
+	    name:
+		  - httpd
+		  - firewalld
+		state: present
+	- name: Started and Enabled httpd and firewalld
+	  service:
+	    name: "{{ item }}"
+		state: started
+		enabled: yes
+	  loop:
+	    - httpd
+		- firewalld
+	- name: Allow http in the firewalld
+	  firewalld:
+	  service: http
+	  state: enabled
+	  permanent: yes
+	  immediate: yes
+	- name: Create /webdev directory
+	  file:
+	    path: /webdev
+		group: webdev
+		mode: 2775
+		state: directory
+		setype: httpd_sys_content_t
+
+Practice Apache Server playbook
+---
+- name : Start Apache web server
+  hosts : appdb
+  tasks :
+    - name : Install Apache
+      yum :
+        name : httpd
+        state : latest
+    - name : start the apache service
+      service :
+        name : httpd
+        state : started
+        enabled : yes
+...
+
+
+
+
+
+
+Stop Apache server playbook
+---
+- name : Stop Apache server
+  hosts : appdb
+  tasks :
+    - name : Stop apache service
+      service :
+        name : httpd
+        state : stopped
+...
+
+
+
+
