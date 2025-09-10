@@ -1,0 +1,85 @@
+Virtual Hosting: A single server/apache server but to be use multiple application server is called virtual hosting.
+All work from Master node:
+Check All service status first
+httpd(apache), mysqld
+#systemctl status mysqld
+#systemctl status httpd
+
+--------------------
+#yum install git -y 				[git installation]
+#cd /var/www/html/				[data directory location]
+#git clone https://github.com/Iqbalkhan319/bangladeshhealthwatch-.git
+#mv bangladeshhealthwatch-/ phpapp	[Rename website]
+#cd phpapp/
+#cd includes/					[check how to the Database connection]
+#vim config.php
+
+-----------------
+Connect MySQL
+#mysql -u root -p
+mysql>create database bhw;					[create new database]
+mysql>use bhw;						[apply database]
+#cd /var/www/html/phpapp/SQL File				[sql data backup file]
+mysql> source /var/www/html/phpapp/SQL File/bhw.sql	[restore database ]
+mysql>show tables;
+#cd includes
+#vim config.php						[change password]
+#systemctl restart httpd					[restart apache server]
+
+
+
+
+
+
+Virtual hosting Configuration:
+#cd /etc/httpd/conf.d/
+#vim phpapp.sysadmin.com.conf
+<VirtualHost *:80>
+ServerName phpapp.sysadmin.com
+DocumentRoot "/var/www/html/phpapp"
+TransferLog /var/log/httpd/phpapp.sysadmin.com_access.log
+ErrorLog /var/log/httpd/phpapp.sysadmin.com_error.log
+</VirtualHost>
+
+<Directory "/var/www/html/phpapp">
+AllowOverride All
+Options Includes ExecCGI FollowSymLinks MultiViews
+Require All granted
+</Directory>
+
+#apachectl -t
+#systemctl restart httpd
+#ping phpapp.sysadmin.com
+#vim /etc/hosts
+192.168.80.132	 phpapp.sysadmin.com
+192.168.80.132	 metal.sysadmin.com
+#ping phpapp.sysadmin.com
+#curl phpapp.sysadmin.com
+And apply local machine DNS
+Open Nodepad>>As a Administrator >>File>>open>>C:\Windows\System32\drivers\etc
+Edit hosts file
+192.168.80.132	 phpapp.sysadmin.com
+192.168.80.132	 metal.sysadmin.com
+Ping from cmd and 
+Also try to browser
+
+
+
+--------------
+Slave Node Concept
+Here we take tow server.
+One Server is httpd(Apache) and one server is MySQL both server connected together.
+#systemctl disable httpd		[one server enable and one server is disable httpd]
+#systemctl stop httpd			[same concept for mysql]
+#vim /etc/my.cnf
+[mysqld]
+bind-address = '*'
+#systemctl restart mysqld
+#mysql -u root -p
+mysql>grant all privileges on *.* TO 'root'@'%' identified by 'Time@12345' with grant option;
+mysql>flush privileges
+mysql>quit
+#firewall-cmd --permanent --add-port=3306/tcp
+#firewall-cmd --reload
+
+
