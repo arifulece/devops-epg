@@ -1,0 +1,77 @@
+Topic: Ansible Service management system or application automation tools
+
+
+Need to three node 1) Master 2)Appnode1 3) Appnode2
+and three node hostname change and create same user for three node and fixed three node ip address.
+[note: hostname change then apply bash command]
+Apply Master Node
+#hostnamectl set-hostname master
+#cd  /etc/sysconfig/network-scripts/ifcfg-ens160
+ip fixed			[so that don’t change IP]
+IPADDR="192.168.44.134"
+NETMASK="255.255.255.0" or PREFIX="24"
+GATEWAY="192.168.44.1"
+DNS1="8.8.8.8"
+#systemctl restart network
+
+#yum install epel-release -y
+#yum install ansible -y
+#ansible --version
+#adduser automation				[apply all node same user and password]
+#vim /etc/sudoers 				[do not work sudoers than use "visudo"]
+## Same thing without a password
+automation      ALL=(ALL)       NOPASSWD: ALL
+/wheel
+#password automation
+work with automation
+#su - automation
+note: automation user create other node and automation password set other node
+#ssh-keygen 				[concept: without password access other node by ssh and node1 & node2 will do visudo]
+#sudo vim /etc/hosts
+192.168.44.135		Appnode1
+192.168.44.136		Appnode2
+#ssh-copy-id appnode1
+#ssh appnode1
+#ssh-copy-id appnode2
+#ssh appnode2
+
+#mkdir ansible						[folder create form automation user]
+#cd ansible
+#cp /etc/ansible/ansible.cfg .
+#vim ansible.cfg
+[defaults]
+inventory	= /home/automation/ansible/inventory	[node configuration directory]
+#touch inventory
+#vim inventory
+[node]
+appnode1
+[dbnode]
+appnode2
+[all:children]
+node
+Dbnode
+
+Ansible prefer two types of command AD-hoc and playbook
+AD-HOC command
+#ansible all --list-hosts
+#ansible all -m ping 
+#ansible node -m ping
+#ansible node1 -m command -a "uptime"
+#ansible node1 -m command -a "w"
+#ansible node1 -m command -a "df -hT"
+#ansible appdb -m shell -a "free mh"
+#ansible appdb -m shell -a "yum remove httpd -y"
+ansible appdb -m shell -a "yum install httpd -y"
+For appnode1
+#ansible appnode1 -m shell -a “systemctl status httpd”
+#sudo ansible appnode1 -m shell -a “systemctl stop httpd”
+#sudo ansible appnode1 -m shell -a “systemctl disable httpd”
+For appnode2
+#ansible appnode2 -m shell -a “systemctl status mysqld”
+#sudo ansible appnode2 -m shell -a “systemctl stop mysqld”
+#sudo ansible appnode2 -m shell -a “systemctl disable mysqld”
+
+
+
+
+
