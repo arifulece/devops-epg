@@ -1,0 +1,95 @@
+HA Proxy: High Availability Load Balance.
+Ready 3 node
+dbnode 	: 192.168.80.132 
+appnode1	: 192.168.80.133
+appnode2	: 192.168.80.134
+change all node hostname and Apache and HA proxy both are not running together.
+#hostnamectl set-hostname appnode1
+#systemctl disable httpd		[if install apache then disable from all node]
+#systemctl stop httpd	
+
+fixed IP address
+
+#yum install epel-release -y 		[apply this command all node]
+
+Work from dbnode
+vim /etc/hosts
+192.168.1.12  appnode1
+192.168.1.13  appnode2
+HA proxy and apache both are not running together
+HA proxy configure*****
+#yum install haproxy -y 
+#systemctl start haproxy
+#systemctl restart haproxy
+#systemctl enable haproxy
+#cd /etc/haproxy/
+#mv haproxy.cfg.backup		[for old configuration backup]
+#vim haproxy.cfg
+
+global
+	log 			127.0.0.1 local2 info
+	chroot			/var/lib/haproxy 
+	pidfile			/var/run/haproxy
+	maxconn		1000 
+	user			haproxy
+	Group 			haproxy	
+	daemon
+	stats socket		/var/lib/haproxy/stats
+defaults
+	mode 				http
+	log				global
+	option 				httplog 
+	option 				dontlognull
+	option http-server-close
+	option forwardfor		except 127.0.0.0/8 
+	option				redispatch
+	retries				3
+	timeout http-request		600s
+	timeout queue			1m
+	timeout connect		10s
+	timeout client			1m 
+	timeout server			600s 
+	timeout http-keep-alive	6000
+	timeout check 			10s 
+	maxconn			1000
+	
+##Frontend
+frontend phpapp
+mode http
+bind *:80
+stats realm Haproxy\ Statistics
+stats show-legends
+stats refresh 60s
+stats enable
+stats auth admin:@Ar!ful1219
+stats hide-version
+stats show-node
+stats uri /stats
+maxconn 1000
+use_backend phpbackend
+default_backend phpbackend
+
+#backend
+backend phpbackend
+mode http
+option httplog
+option httpchk
+balance roundrobin
+
+#Backed servers
+server appnode1 192.168.1.15:80 check
+server appnode2 192.168.1.16:80 check
+ 
+#systemctl restart haproxy
+#systemctl status haproxy
+
+
+#netstat -tulpn
+
+#cat /etc/rsyslog.conf
+#save boot message also to boot.log
+local7.*				/var/log/boot.log
+local2.*				/var/log/haproxy.log
+#systemctl restart rsyslog
+
+
